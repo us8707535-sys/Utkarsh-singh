@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
 
@@ -73,7 +72,8 @@ export const Input: React.FC<InputProps> = ({ icon: Icon, label, className = '',
 };
 
 // --- Badge ---
-export const Badge: React.FC<{ children: React.ReactNode; type?: 'success' | 'warning' | 'info' | 'govt' }> = ({ children, type = 'info' }) => {
+// Added className prop to support additional styling via props and fix TypeScript errors
+export const Badge: React.FC<{ children: React.ReactNode; type?: 'success' | 'warning' | 'info' | 'govt'; className?: string }> = ({ children, type = 'info', className = '' }) => {
   const colors = {
     success: "bg-emerald-100 text-emerald-700",
     warning: "bg-amber-100 text-amber-700",
@@ -81,7 +81,7 @@ export const Badge: React.FC<{ children: React.ReactNode; type?: 'success' | 'wa
     govt: "bg-orange-100 text-orange-800",
   };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${colors[type]}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${colors[type]} ${className}`}>
       {children}
     </span>
   );

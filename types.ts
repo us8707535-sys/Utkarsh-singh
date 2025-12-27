@@ -63,6 +63,9 @@ export interface Order {
   total: number;
   date: string;
   status: 'processing' | 'shipped' | 'delivered';
+  isLocal?: boolean;
+  estimatedArrival?: string;
+  deliveryCoords?: [number, number]; // [lat, lng]
 }
 
 export interface SearchFilters {
