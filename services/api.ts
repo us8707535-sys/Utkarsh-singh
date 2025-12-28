@@ -1,13 +1,10 @@
 
 import { Medicine, Order, Supplier, SourcingStats } from '../types';
 
-export const OFFICIAL_PHONE = "+91 8707535798";
+export const OFFICIAL_PHONE = "+91-7905388194";
+export const SECONDARY_PHONE = "+91-8707535798";
 export const OFFICIAL_ADDRESS = "570, P N to 1/6, Azad Nagar, Alambagh, 20, Lucknow, Uttar Pradesh, 226005";
 
-/**
- * MOCK_DATABASE
- * A comprehensive drug information database with pricing and authorized metadata.
- */
 const MOCK_DATABASE: Medicine[] = [
   {
     id: 'dk-001',
@@ -106,64 +103,6 @@ const MOCK_DATABASE: Medicine[] = [
     apiSource: 'local',
     isGeneric: true,
     approvalStatus: 'approved'
-  },
-  {
-    id: 'dk-006',
-    name: 'Sevelamer Carbonate 800mg',
-    description: 'Phosphate binder used in patients with chronic kidney disease on dialysis.',
-    manufacturer: 'Sanofi Genzyme',
-    category: 'Nephrology',
-    dosageForm: 'Tablet',
-    expiryDate: '2026-01-15',
-    mrp: 2600.00,
-    price: 2320.00,
-    stock: 120,
-    imageUrl: 'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?auto=format&fit=crop&q=80&w=800',
-    requiresPrescription: true,
-    sellerId: 'specialty_meds',
-    rating: 4.8,
-    reviewsCount: 1100,
-    apiSource: 'west_pharma',
-    approvalStatus: 'approved'
-  },
-  {
-    id: 'dk-007',
-    name: 'Vitamin D3 60K Capsules',
-    description: 'High-dose Vitamin D3 for bone health and immunity support. Soft-gel capsules.',
-    manufacturer: 'Cadila Pharma',
-    category: 'Vitamins',
-    dosageForm: 'Capsule',
-    expiryDate: '2027-05-10',
-    mrp: 65.00,
-    price: 48.00,
-    stock: 1500,
-    imageUrl: 'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?auto=format&fit=crop&q=80&w=800',
-    requiresPrescription: false,
-    sellerId: 'govt_hub',
-    rating: 4.9,
-    reviewsCount: 9500,
-    apiSource: 'jan_aushadhi',
-    isGeneric: true,
-    approvalStatus: 'approved'
-  },
-  {
-    id: 'dk-008',
-    name: 'Januvia 100mg',
-    description: 'Advanced Western diabetic medication for blood sugar control in Type 2 diabetes.',
-    manufacturer: 'Merck & Co.',
-    category: 'Diabetic',
-    dosageForm: 'Tablet',
-    expiryDate: '2026-04-20',
-    mrp: 1480.00,
-    price: 1340.00,
-    stock: 90,
-    imageUrl: 'https://images.unsplash.com/photo-1550572017-edd951aa8f72?auto=format&fit=crop&q=80&w=800',
-    requiresPrescription: true,
-    sellerId: 'west_distributor',
-    rating: 4.8,
-    reviewsCount: 4200,
-    apiSource: 'west_pharma',
-    approvalStatus: 'approved'
   }
 ];
 
@@ -210,26 +149,52 @@ export const approveMedicine = async (id: string): Promise<boolean> => {
   return false;
 };
 
+// Helper for business day calculation (No Sat/Sun delivery)
+const getBusinessDate = (days: number) => {
+  let date = new Date();
+  let count = 0;
+  while(count < days) {
+    date.setDate(date.getDate() + 1);
+    const day = date.getDay();
+    if (day !== 0 && day !== 6) count++;
+  }
+  while(date.getDay() === 0 || date.getDay() === 6) {
+    date.setDate(date.getDate() + 1);
+  }
+  return date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' });
+};
+
 export const createOrder = async (order: Omit<Order, 'id'>): Promise<Order> => {
   await new Promise(resolve => setTimeout(resolve, 1500));
   
-  // Randomly decide if local for simulation (Lucknow/Alambagh area)
-  const isLocal = Math.random() > 0.3;
-  const status = isLocal ? 'shipped' : 'processing';
-  const eta = isLocal ? '35 minutes' : 'Tomorrow, 9 AM';
+  // Logic updated to use fee to determine base ETA
+  // Distance Logic: Within 40km same day, else max 3 days. Long distance 4-5 days. No weekends.
+  const city = (order.address.city || '').toLowerCase().trim();
+  const distance = city === 'lucknow' ? 10 : city === 'delhi' ? 500 : 80;
+
+  let eta = "";
+  if (distance <= 40) {
+    const today = new Date();
+    if (today.getDay() === 0 || today.getDay() === 6) {
+      eta = "Next Monday";
+    } else {
+      eta = "Same Day (Today)";
+    }
+  } else if (distance > 40 && distance <= 150) {
+    eta = order.deliveryFee === 50 ? getBusinessDate(1) : getBusinessDate(3);
+  } else {
+    eta = getBusinessDate(5);
+  }
   
   const newOrder: Order = {
     ...order,
-    id: `DK-ORD-${Math.floor(10000 + Math.random() * 90000)}`,
-    isLocal,
-    status,
+    id: `VH-ORD-${Math.floor(10000 + Math.random() * 90000)}`,
+    status: 'shipped',
     estimatedArrival: eta,
-    // Coordinates for Azad Nagar, Alambagh, Lucknow (~26.8143, 80.9168)
-    deliveryCoords: isLocal ? [26.8143 + (Math.random() - 0.5) * 0.01, 80.9168 + (Math.random() - 0.5) * 0.01] : undefined 
+    deliveryCoords: [26.8143 + (Math.random() - 0.5) * 0.01, 80.9168 + (Math.random() - 0.5) * 0.01] 
   };
   ORDERS.unshift(newOrder);
-  // SMS Alert simulation
-  console.log(`[Dawakhana Notification] SMS to ${OFFICIAL_PHONE}: "New Order ${newOrder.id} received. Total: ₹${newOrder.total}"`);
+  console.log(`[VedaHealth Hub] New Order ${newOrder.id} received. Speed: ${eta}. Distance: ${distance}km.`);
   return newOrder;
 };
 
@@ -242,9 +207,9 @@ export const fetchSuppliers = async (): Promise<Supplier[]> => {
   return [
     {
       id: 'sup-1',
-      name: 'Bharat Pharma API Hub',
+      name: 'Veda Bharat API Hub',
       location: 'Hyderabad, India',
-      licenseNo: 'LIC-2024-BHARAT',
+      licenseNo: 'LIC-2024-VEDA',
       isGovtApproved: true,
       apiProvided: ['Paracetamol IP', 'Metformin API'],
       rating: 4.9

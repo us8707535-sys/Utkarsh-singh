@@ -61,11 +61,21 @@ export interface Order {
   id: string;
   items: CartItem[];
   total: number;
+  deliveryFee: number;
   date: string;
   status: 'processing' | 'shipped' | 'delivered';
   isLocal?: boolean;
   estimatedArrival?: string;
   deliveryCoords?: [number, number]; // [lat, lng]
+  address: {
+    recipientName: string;
+    houseNo: string;
+    landmark: string;
+    pincode: string;
+    city: string;
+    primaryContact: string;
+    secondaryContact: string;
+  };
 }
 
 export interface SearchFilters {
