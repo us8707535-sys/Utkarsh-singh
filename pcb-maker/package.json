@@ -1,0 +1,14 @@
+{
+    "name": "allegro-x-pcb-maker",
+    "version": "1.0.0",
+    "description": "Allegro X -- Autonomous Circuit Knowledge Engine",
+    "main": "app_ai_server.js",
+    "scripts": {
+        "start": "node app_ai_server.js",
+        "dev": "node app_ai_server.js"
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "cors": "^2.8.5"
+    }
+}

@@ -2,8 +2,8 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/index.py",
-      "use": "@vercel/python"
+      "src": "api/index.js",
+      "use": "@vercel/node"
     },
     {
       "src": "index.html",
@@ -11,18 +11,39 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/generate", "destination": "/api/index" },
-    { "source": "/api/ask", "destination": "/api/index" },
-    { "source": "/api/templates", "destination": "/api/index" },
-    { "source": "/api/knowledge", "destination": "/api/index" }
+    {
+      "source": "/api/generate",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/api/ask",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/api/templates",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/api/knowledge",
+      "destination": "/api/index"
+    }
   ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,POST,OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type"
+        }
       ]
     }
   ]
